@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+
+# Python cache/bytecode
+__pycache__/
+*.py[cod]
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Test and coverage artifacts
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
