@@ -1,0 +1,9 @@
+# Local development overrides
+# This file is automatically merged with docker-compose.yml when running docker compose locally.
+# It exposes PostgreSQL to the host so you can connect with local DB tools (pgAdmin, DBeaver, psql).
+# This file is NOT used in production — the base docker-compose.yml has no host port exposure.
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"

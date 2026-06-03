@@ -16,6 +16,21 @@ Each incident documents a real failure introduced intentionally to understand sy
 
 ---
 
+## Simulation Tip
+
+When actively simulating failures, `restart: always` on the service under test causes it to recover and restart automatically — wiping the failure state before you can inspect it. Temporarily set `restart: "no"` on the service being tested:
+
+```yaml
+# In docker-compose.override.yml while simulating
+services:
+  backend:
+    restart: "no"
+```
+
+This lets you inspect the exit state cleanly with `docker compose logs` and `docker compose ps` before recovering.
+
+---
+
 ## Incident Report Template
 
 Use the following structure for every incident:
@@ -23,10 +38,10 @@ Use the following structure for every incident:
 ```markdown
 # INC-XXX — [Short Title]
 
-**Date:** YYYY-MM-DD  
-**Phase:** Phase N — [Phase Name]  
-**Severity:** Low / Medium / High  
-**Duration:** X minutes  
+**Date:** YYYY-MM-DD
+**Phase:** Phase N — [Phase Name]
+**Severity:** Low / Medium / High
+**Duration:** X minutes
 **Status:** Resolved
 
 ---
@@ -39,10 +54,16 @@ One paragraph describing what happened, what was affected, and how it was resolv
 
 ## Symptoms
 
-What was visible from the outside — what broke, what error messages appeared, what the user experience was.
+What was visible from the outside — error messages, user experience, what broke and what kept working.
 
 - Symptom 1
 - Symptom 2
+
+---
+
+## Discovery
+
+How was the failure detected? Log line? Health check failure? User-visible error? Browser DevTools?
 
 ---
 
@@ -52,13 +73,13 @@ Step-by-step debugging process. Include actual commands run and output observed.
 
 ```bash
 docker compose logs backend --tail=20
-# output here
+# output observed
 
 docker compose ps
-# output here
+# output observed
 ```
 
-What each command revealed and what the next step was.
+What each step revealed and what the next step was.
 
 ---
 
@@ -74,9 +95,22 @@ Exact change made to resolve the issue.
 
 ---
 
+## Detection Gap
+
+How monitoring or alerting would catch this in production — before a user reports it.
+What metric, log pattern, or health check would expose this failure automatically?
+
+---
+
+## Prevention
+
+What configuration, process, or architecture change would prevent this class of failure from recurring?
+
+---
+
 ## Lessons Learned
 
-What this incident reveals about the system, about Docker/NGINX/the tool involved, and what to watch for in future.
+What this incident reveals about the system and the tools involved.
 
 ---
 

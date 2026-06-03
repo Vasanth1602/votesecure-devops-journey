@@ -132,6 +132,7 @@ Default admin credentials are set via `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `bac
 - Startup dependency ordering via `condition: service_healthy` — eliminates backend crash loops
 - Secret management via `env_file` and environment variable substitution (`${DB_PASSWORD}`)
 - `.dockerignore` for both services — excludes `node_modules`, `__pycache__`, `.env`, logs
+- `docker-compose.override.yml` for local dev port exposure — base compose has no host ports
 
 → [Full Docker documentation](docs/phase-01-docker.md)
 

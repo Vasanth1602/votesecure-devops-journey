@@ -256,10 +256,12 @@ Internal hostname resolution:
 **Host port exposure:**
 | Service | Host Port | Reason |
 |---|---|---|
-| postgres | `5432` | Available for local DB tools (pgAdmin, DBeaver) during development |
+| postgres | — | Internal only in base compose — see `docker-compose.override.yml` |
 | redis | — | Internal only |
 | backend | — | Internal only — all API traffic routes through NGINX |
 | frontend | `5173 → 80` | Single public entry point |
+
+**`docker-compose.override.yml`** — Docker Compose automatically merges this file with the base compose when running locally. It exposes postgres on `5432` to the host so DB tools (pgAdmin, DBeaver, psql) can connect. In production environments, this file is absent — postgres has no host port exposure.
 
 ---
 
