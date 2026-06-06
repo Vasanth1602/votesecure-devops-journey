@@ -10,9 +10,9 @@ Each incident documents a real failure introduced intentionally to understand sy
 
 | # | Incident | Phase | Status |
 |---|---|---|---|
-| — | *No incidents documented yet* | — | — |
+| [INC-001](INC-001-postgresql-outage.md) | PostgreSQL Container Outage | Phase 1 — Containerization | ✅ Resolved |
 
-*Incidents will be added as operational exercises are completed.*
+*More incidents will be added as operational exercises are completed.*
 
 ---
 
