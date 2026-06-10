@@ -268,5 +268,5 @@ This URL returns `404 Not Found` because:
 
 **Fix needed:** Either add a NGINX route for `/health`, or change the FastAPI endpoint to `/api/health`, or remove the health URL from the README.
 
-Tracked as a follow-up fix before Phase 3.
+**Fixed:** Added `location = /health { proxy_pass http://backend:5000/health; }` to `frontend/nginx.conf`. The URL `http://localhost:5173/health` now correctly proxies to the backend health endpoint. README updated accordingly.
 

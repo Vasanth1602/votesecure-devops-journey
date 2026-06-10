@@ -41,8 +41,7 @@ graph TD
     end
 
     Browser -->|"HTTP / WebSocket"| NGINX
-    NGINX -->|"/api/* — proxy_pass"| API
-    NGINX -->|"/socket.io/* — WS upgrade"| API
+    NGINX -->|"/api/* and /socket.io/*"| API
     API -->|"psycopg2"| PG
     API -->|"redis-py"| RD
 ```
@@ -72,7 +71,7 @@ graph TD
 **Step 1 — Clone the repository**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/votesecure-devops-journey.git
+git clone https://github.com/Vasanth1602/votesecure-devops-journey.git
 cd votesecure-devops-journey
 ```
 
@@ -114,7 +113,7 @@ docker compose up --build
 
 **Access the application:**
 - Frontend: http://localhost:5173
-- Health check: http://localhost:5173/api/health
+- Health check: http://localhost:5173/health
 
 Default admin credentials are set via `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `backend/.env`.
 
@@ -193,9 +192,7 @@ Failure simulations and root cause analyses are documented in [docs/incidents/](
 **Completed**
 - ✅ Containerization (Docker + Docker Compose)
 - ✅ Reverse Proxy (NGINX)
-
-**In Progress**
-- 🔄 Operational failure simulations and incident documentation
+- ✅ Operational failure simulations (3 incidents documented)
 
 **Upcoming**
 - CI/CD automation (GitHub Actions)
