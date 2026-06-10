@@ -1,6 +1,6 @@
 # INC-002 — Docker Service Discovery Failure
 
-**Date:** 2026-06-10
+**Date:** 2026-06-06
 **Phase:** Phase 1 — Containerization
 **Severity:** Critical
 **Duration:** ~10 minutes (intentional simulation)

@@ -12,6 +12,7 @@ Each incident documents a real failure introduced intentionally to understand sy
 |---|---|---|---|
 | [INC-001](INC-001-postgresql-outage.md) | PostgreSQL Container Outage | Phase 1 — Containerization | ✅ Resolved |
 | [INC-002](INC-002-docker-service-discovery-failure.md) | Docker Service Discovery Failure | Phase 1 — Containerization | ✅ Resolved |
+| [INC-003](INC-003-nginx-websocket-upgrade-failure.md) | NGINX WebSocket Upgrade Failure | Phase 2 — Reverse Proxy | ✅ Resolved |
 
 *More incidents will be added as operational exercises are completed.*
 
