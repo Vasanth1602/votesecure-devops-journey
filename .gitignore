@@ -33,3 +33,6 @@ build/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Personal content drafts (local only, not for repo)
+linkedin-posts/

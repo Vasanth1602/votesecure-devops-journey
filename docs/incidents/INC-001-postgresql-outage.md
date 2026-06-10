@@ -270,33 +270,3 @@ This URL returns `404 Not Found` because:
 
 Tracked as a follow-up fix before Phase 3.
 
----
-
-## LinkedIn Post Draft
-
-> **I deliberately crashed my database. Here's what I found.**
->
-> During my VoteSecure DevOps project, I stopped the PostgreSQL container intentionally to simulate a real outage. The goal: understand exactly what breaks, what survives, and what alerts.
->
-> **What I expected:** "Connection refused"
-> **What I got:** "No address associated with hostname"
->
-> Docker deregisters a stopped container from its internal DNS. The backend never even attempted a TCP connection — the hostname didn't resolve. That's a meaningful difference when you're debugging at 2AM.
->
-> **What survived the outage:**
-> ✅ React frontend (NGINX serves static files independently)
-> ✅ JWT token validation (reads in-memory, no DB)
-> ✅ Redis rate limiting and JWT blacklist
->
-> **What died:**
-> ❌ Login, registration, all election endpoints (all hit PostgreSQL)
->
-> **The most uncomfortable finding:** nothing alerted. Container status showed green. The health endpoint returned 404 (a separate bug I only found because of this simulation). In production, I would have had no idea until users started reporting errors.
->
-> That's exactly the gap Phase 5 (Prometheus + Grafana) is designed to close.
->
-> This is what operational thinking looks like before you add observability: you're flying blind.
->
-> **Next:** Simulating Docker DNS failure and WebSocket proxy failure before moving to CI/CD.
->
-> Building in public → github.com/YOUR_USERNAME/votesecure-devops-journey
