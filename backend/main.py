@@ -1,4 +1,5 @@
 import hashlib
+import unused_ci_test_module
 import os
 import random
 import smtplib
