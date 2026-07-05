@@ -150,6 +150,21 @@ Default admin credentials are set via `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `bac
 
 ---
 
+### Phase 3 — Continuous Integration ✅
+
+- GitHub Actions CI pipeline with 5 sequential stages on every push to `main` and every PR
+- Sequential fail-fast design: lint → validate → build → smoke test — cheapest checks first
+- Backend linting with `ruff` — catches unused imports, undefined names, and style violations
+- Frontend build validation with Vite — confirms JavaScript compiles cleanly before Docker build
+- Backend and frontend Docker image builds verified on a clean runner (no local cache)
+- Application smoke test: 3-check validation — health check, API auth gate (401), and login + DB connectivity (200 + accessToken)
+- GitHub Secrets for secure CI environment configuration — credentials never hardcoded
+- PR-based workflow validated: CI blocks merge on failure, `main` stays clean
+
+→ [Full CI documentation](docs/phase-03-cicd.md)
+
+---
+
 ## Key Engineering Outcomes
 
 - Built a reproducible multi-container architecture that starts reliably from a single command
@@ -183,6 +198,7 @@ Failure simulations and root cause analyses are documented in [docs/incidents/](
 |---|---|
 | [docs/phase-01-docker.md](docs/phase-01-docker.md) | Containerization deep-dive: Dockerfiles, Compose, volumes, networking, health checks |
 | [docs/phase-02-nginx.md](docs/phase-02-nginx.md) | NGINX deep-dive: proxy configuration, WebSocket routing, SPA routing |
+| [docs/phase-03-cicd.md](docs/phase-03-cicd.md) | CI deep-dive: pipeline design, stages, smoke test, GitHub Secrets, PR workflow |
 | [docs/incidents/](docs/incidents/) | Incident reports from operational failure simulations |
 
 ---
@@ -193,9 +209,9 @@ Failure simulations and root cause analyses are documented in [docs/incidents/](
 - ✅ Containerization (Docker + Docker Compose)
 - ✅ Reverse Proxy (NGINX)
 - ✅ Operational failure simulations (3 incidents documented)
+- ✅ Continuous Integration (GitHub Actions)
 
 **Upcoming**
-- CI/CD automation (GitHub Actions)
 - Cloud deployment (AWS)
 - Monitoring and alerting (Prometheus + Grafana)
 - Load testing and scaling
