@@ -1,0 +1,191 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────
+  # Stage 1 — Lint Backend
+  # Installs ruff and checks the backend/ directory for lint errors.
+  # Fails fast — no point building images if the code has lint issues.
+  # ─────────────────────────────────────────────────────────────────
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff
+        run: ruff check backend/
+
+  # ─────────────────────────────────────────────────────────────────
+  # Stage 2 — Validate Frontend Build
+  # Note: ESLint is not configured in this project.
+  # Running the Vite build directly on the runner serves as the
+  # frontend quality gate — catches JS/JSX errors before Docker build.
+  # ─────────────────────────────────────────────────────────────────
+  validate-frontend:
+    name: Validate Frontend Build
+    needs: lint-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build (Vite)
+        run: npm run build
+        working-directory: frontend
+
+  # ─────────────────────────────────────────────────────────────────
+  # Stage 3 — Build Backend Docker Image
+  # Verifies the Dockerfile and all pip dependencies install cleanly
+  # on a fresh machine. Does not push to any registry (Phase 4).
+  # ─────────────────────────────────────────────────────────────────
+  build-backend:
+    name: Build Backend Image
+    needs: validate-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build backend Docker image
+        run: docker build -t votesecure-backend ./backend
+
+  # ─────────────────────────────────────────────────────────────────
+  # Stage 4 — Build Frontend Docker Image
+  # Verifies the multi-stage Dockerfile: Node build → nginx:alpine.
+  # Runs Vite build inside Docker and confirms NGINX config is valid.
+  # ─────────────────────────────────────────────────────────────────
+  build-frontend:
+    name: Build Frontend Image
+    needs: build-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build frontend Docker image
+        run: docker build -t votesecure-frontend ./frontend
+
+  # ─────────────────────────────────────────────────────────────────
+  # Stage 5 — Application Smoke Test
+  # Starts the full 4-container stack using GitHub Secrets for env vars.
+  # Verifies three things:
+  #   1. /health              → {"status": "ok"}     (process alive)
+  #   2. /api/elections       → 401                  (API + auth layer)
+  #   3. /api/auth/login      → 200 + accessToken    (PostgreSQL + schema)
+  # ─────────────────────────────────────────────────────────────────
+  smoke-test:
+    name: Application Smoke Test
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create root .env
+        run: echo "DB_PASSWORD=${{ secrets.CI_DB_PASSWORD }}" > .env
+
+      - name: Create backend .env
+        env:
+          CI_DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          CI_JWT_ACCESS_SECRET: ${{ secrets.CI_JWT_ACCESS_SECRET }}
+          CI_JWT_REFRESH_SECRET: ${{ secrets.CI_JWT_REFRESH_SECRET }}
+          CI_ENCRYPTION_KEY: ${{ secrets.CI_ENCRYPTION_KEY }}
+          CI_ADMIN_EMAIL: ${{ secrets.CI_ADMIN_EMAIL }}
+          CI_ADMIN_PASSWORD: ${{ secrets.CI_ADMIN_PASSWORD }}
+        run: |
+          cat > backend/.env << EOF
+          PORT=5000
+          DB_HOST=postgres
+          DB_PORT=5432
+          DB_NAME=voting_db
+          DB_USER=postgres
+          DB_PASSWORD=${CI_DB_PASSWORD}
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          JWT_ACCESS_SECRET=${CI_JWT_ACCESS_SECRET}
+          JWT_REFRESH_SECRET=${CI_JWT_REFRESH_SECRET}
+          JWT_ACCESS_EXPIRY=15m
+          JWT_REFRESH_EXPIRY=7d
+          ENCRYPTION_KEY=${CI_ENCRYPTION_KEY}
+          CLIENT_URL=http://localhost:5173
+          ADMIN_NAME=CI Admin
+          ADMIN_EMAIL=${CI_ADMIN_EMAIL}
+          ADMIN_PASSWORD=${CI_ADMIN_PASSWORD}
+          EOF
+
+      - name: Start full stack
+        run: docker compose up -d --build
+
+      - name: Wait for application to be ready
+        run: |
+          echo "Waiting for application to be ready..."
+          curl \
+            --retry 30 \
+            --retry-delay 5 \
+            --retry-connrefused \
+            --retry-all-errors \
+            -sf \
+            http://localhost:5173/health
+          echo "Application is ready"
+
+      - name: Show stack status
+        run: docker compose ps
+
+      - name: Smoke test 1 — Health check
+        run: |
+          RESPONSE=$(curl -sf http://localhost:5173/health)
+          echo "Response: $RESPONSE"
+          echo "$RESPONSE" | grep -q '"ok"' || { echo "FAIL: health check did not return ok"; exit 1; }
+          echo "PASS: health check"
+
+      - name: Smoke test 2 — API auth gate (expect 401)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173/api/elections)
+          echo "Elections endpoint returned: $STATUS"
+          [ "$STATUS" = "401" ] || { echo "FAIL: expected 401, got $STATUS"; exit 1; }
+          echo "PASS: API auth gate"
+
+      - name: Smoke test 3 — Login and DB connectivity (expect 200 + accessToken)
+        env:
+          CI_ADMIN_EMAIL: ${{ secrets.CI_ADMIN_EMAIL }}
+          CI_ADMIN_PASSWORD: ${{ secrets.CI_ADMIN_PASSWORD }}
+        run: |
+          RESPONSE=$(curl -s -X POST http://localhost:5173/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"${CI_ADMIN_EMAIL}\",\"password\":\"${CI_ADMIN_PASSWORD}\"}")
+          echo "Login response: $RESPONSE"
+          echo "$RESPONSE" | grep -q "accessToken" \
+            || { echo "FAIL: login did not return accessToken"; exit 1; }
+          echo "PASS: login and DB connectivity"
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Teardown
+        if: always()
+        run: docker compose down -v
