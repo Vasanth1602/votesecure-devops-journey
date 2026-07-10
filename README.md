@@ -1,6 +1,8 @@
 # VoteSecure — Production-Style Voting Platform
 
-A full-stack online voting platform used as a **DevOps portfolio project** — containerized, proxied, and progressively evolved toward production-grade infrastructure.
+[![CI](https://github.com/Vasanth1602/votesecure-devops-journey/actions/workflows/ci.yml/badge.svg)](https://github.com/Vasanth1602/votesecure-devops-journey/actions)
+
+A full-stack online voting platform used as a **DevOps portfolio project** — containerized, proxied, CI-validated, and progressively evolved toward production-grade infrastructure.
 
 > This repository tracks both the application and the infrastructure work built around it, documented phase by phase.
 
@@ -60,6 +62,7 @@ graph TD
 | **Cache** | Redis 7 |
 | **Reverse Proxy** | NGINX (nginx:alpine) |
 | **Containerization** | Docker, Docker Compose V2 |
+| **CI/CD** | GitHub Actions |
 | **Security** | AES-256-CBC, JWT blacklisting, RBAC, Redis rate limiting, SHA-256 audit chain |
 
 ---
@@ -173,20 +176,26 @@ Default admin credentials are set via `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `bac
 - Enabled real-time WebSocket updates through an nginx proxy with correct HTTP Upgrade handling
 - Separated environment configuration from source code using `env_file` and variable substitution
 - Reduced Docker build context size by excluding `node_modules`, caches, and secrets via `.dockerignore`
+- Implemented a 5-stage sequential CI pipeline that validates every push: lint → build → smoke test
+- Proved via incident simulation that build success ≠ application success — a perfectly built Docker image can fail at runtime due to environment misconfiguration
+- Demonstrated that a silently misconfigured CI trigger is more dangerous than a failing pipeline — it creates false confidence with no visible indicator
 
 ---
 
 ## Operational Learnings
 
-Alongside the infrastructure setup, I am simulating real-world failures to understand system behavior under failure conditions.
+Throughout Phases 1–3, I simulated real-world failures to understand system behavior under failure conditions. 6 incidents documented across containerization, reverse proxy, and CI.
 
-Areas being explored:
+Areas explored:
 - Container startup race conditions and dependency ordering
 - Service discovery failures (internal DNS vs localhost)
 - Reverse proxy misconfiguration and debugging (502, 504, path rewriting)
 - WebSocket routing and silent fallback behavior
 - Redis dependency analysis — what degrades vs what breaks
 - Data persistence and volume lifecycle
+- CI build failures — broken Dockerfile catches what local Docker cache hides
+- CI runtime failures — all 4 build stages green while the application fails at startup
+- CI trigger misconfiguration — pipeline never runs, failure is completely silent
 
 Failure simulations and root cause analyses are documented in [docs/incidents/](docs/incidents/).
 
@@ -208,7 +217,7 @@ Failure simulations and root cause analyses are documented in [docs/incidents/](
 **Completed**
 - ✅ Containerization (Docker + Docker Compose)
 - ✅ Reverse Proxy (NGINX)
-- ✅ Operational failure simulations (3 incidents documented)
+- ✅ Operational failure simulations (6 incidents documented)
 - ✅ Continuous Integration (GitHub Actions)
 
 **Upcoming**

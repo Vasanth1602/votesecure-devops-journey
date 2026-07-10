@@ -13,8 +13,9 @@ Each incident documents a real failure introduced intentionally to understand sy
 | [INC-001](INC-001-postgresql-outage.md) | PostgreSQL Container Outage | Phase 1 — Containerization | ✅ Resolved |
 | [INC-002](INC-002-docker-service-discovery-failure.md) | Docker Service Discovery Failure | Phase 1 — Containerization | ✅ Resolved |
 | [INC-003](INC-003-nginx-websocket-upgrade-failure.md) | NGINX WebSocket Upgrade Failure | Phase 2 — Reverse Proxy | ✅ Resolved |
-
-*More incidents will be added as operational exercises are completed.*
+| [INC-004](INC-004-ci-build-failure-broken-dockerfile.md) | CI Build Failure — Broken Dockerfile | Phase 3 — Continuous Integration | ✅ Resolved |
+| [INC-005](INC-005-ci-smoke-test-failure-wrong-secret.md) | CI Smoke Test Failure — Wrong Secret | Phase 3 — Continuous Integration | ✅ Resolved |
+| [INC-006](INC-006-ci-pipeline-never-starts-wrong-trigger.md) | CI Pipeline Never Starts — Wrong Trigger | Phase 3 — Continuous Integration | ✅ Resolved |
 
 ---
 
