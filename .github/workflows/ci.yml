@@ -123,7 +123,7 @@ jobs:
           DB_PORT=5432
           DB_NAME=voting_db
           DB_USER=postgres
-          DB_PASSWORD=${CI_DB_PASSWORD}
+          DB_PASSWORD=wrong_password_inc005_simulation
           REDIS_HOST=redis
           REDIS_PORT=6379
           JWT_ACCESS_SECRET=${CI_JWT_ACCESS_SECRET}
