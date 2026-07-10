@@ -353,5 +353,5 @@ The PR was then merged to `main`. Merge triggered a third CI run on `main` — a
 
 This is the foundation for Phase 4 (automated deployment). A deployment pipeline that doesn't first validate the code is automation without a safety net.
 
-→ [CI Workflow](.github/workflows/ci.yml)
-→ [Incident Reports](docs/incidents/)
+→ [CI Workflow](../.github/workflows/ci.yml)
+→ [Incident Reports](incidents/)
