@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [production]   # INC-006: was [main] — wrong branch, CI will not run
+    branches: [main]
   pull_request:
-    branches: [production]   # INC-006: was [main] — wrong branch, CI will not run
+    branches: [main]
 
 jobs:
   # ─────────────────────────────────────────────────────────────────
