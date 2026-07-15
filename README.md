@@ -67,6 +67,48 @@ graph TD
 
 ---
 
+## Repository Structure
+
+```
+votesecure-devops-journey/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  ← GitHub Actions CI pipeline (5 stages)
+│
+├── backend/
+│   ├── db/
+│   │   └── schema.sql              ← PostgreSQL schema (applied on startup)
+│   ├── .dockerignore
+│   ├── .env.example                ← Environment variable template
+│   ├── Dockerfile                  ← python:3.11-slim image
+│   ├── main.py                     ← FastAPI application (all routes + Socket.io)
+│   ├── requirements.txt
+│   └── server.py                   ← Uvicorn entrypoint
+│
+├── docs/
+│   ├── incidents/                  ← Incident reports from all failure simulations (6 so far)
+│   ├── phase-01-docker.md          ← Containerization deep-dive
+│   ├── phase-02-nginx.md           ← NGINX & reverse proxy deep-dive
+│   └── phase-03-cicd.md            ← CI pipeline deep-dive
+│
+├── frontend/
+│   ├── src/                        ← React 18 source (pages, components, hooks)
+│   ├── .dockerignore
+│   ├── Dockerfile                  ← Multi-stage: Node.js build → nginx:alpine serve
+│   ├── index.html
+│   ├── nginx.conf                  ← Embedded NGINX config (proxy + SPA routing)
+│   ├── package.json
+│   └── vite.config.js
+│
+├── .gitignore
+├── docker-compose.override.yml     ← Dev-only port exposure (not committed to prod)
+├── docker-compose.yml              ← Production-style service definitions
+└── README.md
+```
+
+---
+
 ## Quick Start
 
 **Prerequisites:** Docker, Docker Compose V2
